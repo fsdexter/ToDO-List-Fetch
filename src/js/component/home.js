@@ -1,37 +1,99 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./home.scss";
 
 export function Home() {
 	// JS aqui abaixo
-	const [toDo, setToDo] = useState([
-		"Tomar banho",
-		"Escovar os Dentes",
-		"Tirar o lixo",
-		"Brincar com o Alexandre",
-		"Fazer Comida"
-	]);
+
+	const [toDo, setToDo] = useState([]);
 	const [newTask, setNewTask] = useState("");
+	const [backToDo, setBackToDo] = useState([]);
 
-	function del(i) {
-		setToDo(toDo.filter((iten, index) => index !== i));
-	}
+	useEffect(() => {
+		// Update the document title using the browser API
+		var requestOptions = {
+			method: "GET",
+			redirect: "follow"
+		};
 
-	const toDoList = toDo.map((task, i) => {
+		fetch(
+			"https://assets.breatheco.de/apis/fake/todos/user/fsdexter",
+			requestOptions
+		)
+			.then(response => response.json())
+			.then(result => {
+				console.log(result);
+				setToDo(result.map(iten => iten.label));
+				setBackToDo(result.map(iten => iten));
+			})
+			.catch(error => console.log("error", error));
+	}, []);
+
+	const enterHandler = event => {
+		if (event.key === "Enter") {
+			setNewTask("");
+			setBackToDo([
+				...backToDo,
+				{
+					label: event.target.value,
+					done: false
+				}
+			]);
+		}
+		var myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		var raw = JSON.stringify([
+			...backToDo,
+			{
+				label: event.target.value,
+				done: false
+			}
+		]);
+
+		var requestOptions = {
+			method: "PUT",
+			headers: myHeaders,
+			body: raw,
+			redirect: "follow"
+		};
+
+		fetch(
+			"https://assets.breatheco.de/apis/fake/todos/user/fsdexter",
+			requestOptions
+		)
+			.then(response => response.text())
+			.then(result => console.log(result))
+			.catch(error => console.log("error", error));
+	};
+
+	const backToDoList = backToDo.map((iten, i) => {
 		return (
 			<li key={i}>
 				<div className="row">
 					<div className="col d-flex justify-content-between">
-						{task}
-						<i
-							id="trash"
-							className="fas fa-trash-alt"
-							onClick={() => del(i)}
-						/>
+						{iten.label}
+						{iten.done === false ? (
+							<i
+								id="trash"
+								className="far fa-check-square"
+								onClick={iten.done === true}
+							/>
+						) : (
+							<i
+								id="trash"
+								className="fas fa-trash-alt"
+								onClick={() => del(i)}
+							/>
+						)}
 					</div>
 				</div>
 			</li>
 		);
 	});
+
+	function del(i) {
+		setToDo(toDo.filter((iten, index) => index !== i));
+	}
 
 	// JS somente acima
 
@@ -50,19 +112,15 @@ export function Home() {
 								onChange={event => {
 									setNewTask(event.target.value);
 								}}
-								onKeyPress={event => {
-									if (event.key === "Enter") {
-										setToDo([...toDo, event.target.value]);
-										setNewTask("");
-									}
-								}}
+								onKeyPress={enterHandler}
 							/>
 						</center>
 					</div>
 				</div>
+
 				<div className="row justify-content-md-center">
 					<div className="col col-lg-8 mt-3">
-						<ul>{toDoList}</ul>
+						<ul>{backToDoList}</ul>
 					</div>
 				</div>
 				<div className="text-center">Made by Felipe</div>
