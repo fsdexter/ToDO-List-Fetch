@@ -4,7 +4,6 @@ import "./home.scss";
 export function Home() {
 	// JS aqui abaixo
 
-	const [toDo, setToDo] = useState([]);
 	const [newTask, setNewTask] = useState("");
 	const [backToDo, setBackToDo] = useState([]);
 
@@ -22,7 +21,6 @@ export function Home() {
 			.then(response => response.json())
 			.then(result => {
 				console.log(result);
-				setToDo(result.map(iten => iten.label));
 				setBackToDo(result.map(iten => iten));
 			})
 			.catch(error => console.log("error", error));
@@ -38,32 +36,32 @@ export function Home() {
 					done: false
 				}
 			]);
+			var myHeaders = new Headers();
+			myHeaders.append("Content-Type", "application/json");
+
+			var raw = JSON.stringify([
+				...backToDo,
+				{
+					label: event.target.value,
+					done: false
+				}
+			]);
+
+			var requestOptions = {
+				method: "PUT",
+				headers: myHeaders,
+				body: raw,
+				redirect: "follow"
+			};
+
+			fetch(
+				"https://assets.breatheco.de/apis/fake/todos/user/fsdexter",
+				requestOptions
+			)
+				.then(response => response.text())
+				.then(result => console.log(result))
+				.catch(error => console.log("error", error));
 		}
-		var myHeaders = new Headers();
-		myHeaders.append("Content-Type", "application/json");
-
-		var raw = JSON.stringify([
-			...backToDo,
-			{
-				label: event.target.value,
-				done: false
-			}
-		]);
-
-		var requestOptions = {
-			method: "PUT",
-			headers: myHeaders,
-			body: raw,
-			redirect: "follow"
-		};
-
-		fetch(
-			"https://assets.breatheco.de/apis/fake/todos/user/fsdexter",
-			requestOptions
-		)
-			.then(response => response.text())
-			.then(result => console.log(result))
-			.catch(error => console.log("error", error));
 	};
 
 	const backToDoList = backToDo.map((iten, i) => {
@@ -76,7 +74,7 @@ export function Home() {
 							<i
 								id="trash"
 								className="far fa-check-square"
-								onClick={iten.done === true}
+								onClick={() => setDone(iten)}
 							/>
 						) : (
 							<i
@@ -91,10 +89,43 @@ export function Home() {
 		);
 	});
 
-	function del(i) {
-		setToDo(toDo.filter((iten, index) => index !== i));
+	function setDone(iten) {
+		for (let obj in backToDo) {
+			if (backToDo[obj] == iten) {
+				backToDo[obj].done = true;
+			}
+		}
+		setBackToDo([...backToDo]);
 	}
 
+	function del(i) {
+		let newList = backToDo.filter((iten, index) => index !== i);
+
+		var myHeaders = new Headers();
+		myHeaders.append("Content-Type", "application/json");
+
+		var raw = JSON.stringify(newList);
+
+		var requestOptions = {
+			method: "PUT",
+			headers: myHeaders,
+			body: raw,
+			redirect: "follow"
+		};
+
+		fetch(
+			"https://assets.breatheco.de/apis/fake/todos/user/fsdexter",
+			requestOptions
+		)
+			.then(response => response.text())
+			.then(result => {
+				setBackToDo(newList);
+			})
+			.catch(error => console.log("error", error));
+	}
+	//useEffect(() => {
+
+	//}, [backToDo]);
 	// JS somente acima
 
 	return (
