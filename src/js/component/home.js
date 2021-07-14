@@ -123,10 +123,6 @@ export function Home() {
 			})
 			.catch(error => console.log("error", error));
 	}
-	//useEffect(() => {
-
-	//}, [backToDo]);
-	// JS somente acima
 
 	return (
 		<div className="container d-flex justify-content-md-center row mt-5">
