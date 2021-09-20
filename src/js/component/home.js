@@ -29,39 +29,48 @@ export function Home() {
 
 	const enterHandler = event => {
 		if (event.key === "Enter") {
-			setNewTask("");
-			setBackToDo([
-				...backToDo,
-				{
-					label: event.target.value,
-					done: false
-				}
-			]);
-			var myHeaders = new Headers();
-			myHeaders.append("Content-Type", "application/json");
+			let aux = backToDo.some(item => item.label === event.target.value);
+			console.log(aux);
 
-			var raw = JSON.stringify([
-				...backToDo,
-				{
-					label: event.target.value,
-					done: false
-				}
-			]);
+			if (event.target.value == "") {
+				alert("YOU NEED TO IMPUT A VALID TASK");
+			} else if (aux == true) {
+				alert("THIS TASK IS ALREADY ON YOUR LIST");
+			} else {
+				setNewTask("");
+				setBackToDo([
+					...backToDo,
+					{
+						label: event.target.value,
+						done: false
+					}
+				]);
+				var myHeaders = new Headers();
+				myHeaders.append("Content-Type", "application/json");
 
-			var requestOptions = {
-				method: "PUT",
-				headers: myHeaders,
-				body: raw,
-				redirect: "follow"
-			};
+				var raw = JSON.stringify([
+					...backToDo,
+					{
+						label: event.target.value,
+						done: false
+					}
+				]);
 
-			fetch(
-				"https://assets.breatheco.de/apis/fake/todos/user/fsdexter",
-				requestOptions
-			)
-				.then(response => response.text())
-				.then(result => console.log(result))
-				.catch(error => console.log("error", error));
+				var requestOptions = {
+					method: "PUT",
+					headers: myHeaders,
+					body: raw,
+					redirect: "follow"
+				};
+
+				fetch(
+					"https://assets.breatheco.de/apis/fake/todos/user/fsdexter",
+					requestOptions
+				)
+					.then(response => response.text())
+					.then(result => console.log(result))
+					.catch(error => console.log("error", error));
+			}
 		}
 	};
 
