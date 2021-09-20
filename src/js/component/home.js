@@ -6,6 +6,7 @@ export function Home() {
 
 	const [newTask, setNewTask] = useState("");
 	const [backToDo, setBackToDo] = useState([]);
+	const counter = backToDo.length;
 
 	useEffect(() => {
 		// Update the document title using the browser API
@@ -144,12 +145,23 @@ export function Home() {
 						</center>
 					</div>
 				</div>
-
 				<div className="row justify-content-md-center">
 					<div className="col col-lg-8 mt-3">
-						<ul>{backToDoList}</ul>
+						{counter > 0 ? (
+							<ul>{backToDoList}</ul>
+						) : (
+							<p>No tasks, add a task</p>
+						)}
 					</div>
 				</div>
+				<div className="row justify-content-md-center">
+					<div className="col col-lg-8 mt-3">
+						<center>
+							<p>YOU HAVE {counter} TASKS TODO</p>
+						</center>
+					</div>
+				</div>
+
 				<div className="text-center">Made by Felipe</div>
 			</div>
 		</div>
